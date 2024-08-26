@@ -146,6 +146,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "anchor-dice-2024"
+version = "0.1.0"
+dependencies = [
+ "anchor-instruction-sysvar",
+ "anchor-lang",
+ "solana-program",
+]
+
+[[package]]
 name = "anchor-instruction-sysvar"
 version = "0.1.0"
 source = "git+https://github.com/ShrinathNR/anchor-instruction-sysvar.git?branch=version-upgrade#644326618efec7ebc5356339e6b2bb0176ddb795"
@@ -1354,15 +1363,6 @@ name = "regex-syntax"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
-
-[[package]]
-name = "rng"
-version = "0.1.0"
-dependencies = [
- "anchor-instruction-sysvar",
- "anchor-lang",
- "solana-program",
-]
 
 [[package]]
 name = "rustc-hash"

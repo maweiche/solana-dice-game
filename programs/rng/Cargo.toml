@@ -1,12 +1,12 @@
 [package]
-name = "rng"
+name = "anchor-dice-2024"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "rng"
+name = "anchor_dice_2024"
 
 [features]
 default = []

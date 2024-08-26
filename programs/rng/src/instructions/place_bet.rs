@@ -1,54 +1,54 @@
-use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
+use anchor_lang::{prelude::*, system_program::{transfer, Transfer}};
 
 use crate::state::Bet;
 
 #[derive(Accounts)]
-#[instruction(seed:u64)]
+#[instruction(seed: u128)]
 pub struct PlaceBet<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
-    ///CHECK: This is safe
-    pub house: UncheckedAccount<'info>,
+    pub house: SystemAccount<'info>,
     #[account(
         mut,
         seeds = [b"vault", house.key().as_ref()],
-        bump
+        bump,
     )]
     pub vault: SystemAccount<'info>,
     #[account(
         init,
         payer = player,
-        space = Bet::LEN,
         seeds = [b"bet", vault.key().as_ref(), seed.to_le_bytes().as_ref()],
-        bump
+        space = Bet::INIT_SPACE + 8,
+        bump,
     )]
     pub bet: Account<'info, Bet>,
-    pub system_program: Program<'info, System>
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> PlaceBet<'info> {
-    pub fn create_bet(&mut self, bumps: &PlaceBetBumps, seed: u64, roll: u8, amount: u64) -> Result<()> {
-        self.bet.set_inner(Bet{
-            slot : Clock::get()?.slot,
+    pub fn create_bet(&mut self, seed: u128, roll: u8, amount: u64, bumps: &PlaceBetBumps) -> Result<()> {
+        self.bet.set_inner(Bet {
             player: self.player.key(),
-            seed: seed,
-            roll,
+            seed,
+            slot: Clock::get()?.slot,
             amount,
-            bump : bumps.bet,
+            roll,
+            bump: bumps.bet,
         });
+
         Ok(())
     }
 
     pub fn deposit(&mut self, amount: u64) -> Result<()> {
-        let accounts = Transfer {
+        let cpi_program = self.system_program.to_account_info();
+
+        let cpi_accounts = Transfer {
             from: self.player.to_account_info(),
-            to: self.vault.to_account_info()
+            to: self.vault.to_account_info(),
         };
 
-        let ctx = CpiContext::new(
-            self.system_program.to_account_info(),
-            accounts
-        );
-        transfer(ctx, amount)
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+        transfer(cpi_ctx, amount)
     }
 }
